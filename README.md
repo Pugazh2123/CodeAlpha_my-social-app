@@ -50,7 +50,7 @@ frontend/ - UI files (if available)
 
 1\. Clone the repository
 
-git clone https://github.com/Pugazh2123/CodeAlpha\_my-social-app.git
+git clone https://github.com/Pugazh2123/CodeAlpha\_my-social-app
 
 CodeAlpha\_my-social-app
 
