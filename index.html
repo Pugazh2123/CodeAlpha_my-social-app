@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SocialApp</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0f0f13;--surf:#1a1a22;--surf2:#22222e;--surf3:#2a2a38;
+      --accent:#7c6af7;--accent2:#a78bfa;
+      --text:#e8e6f0;--muted:#8884a0;--border:#2e2e40;
+      --red:#f87171;--green:#4ade80;
+      --font:'Segoe UI',sans-serif;
+    }
+    body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh}
+
+    /* AUTH */
+    .auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
+    .auth-box{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:2rem;width:100%;max-width:400px}
+    .auth-logo{font-size:1.8rem;font-weight:700;color:var(--accent2);text-align:center;margin-bottom:0.3rem}
+    .auth-sub{text-align:center;color:var(--muted);font-size:0.85rem;margin-bottom:1.5rem}
+    .tabs{display:flex;background:var(--surf2);border-radius:10px;padding:4px;margin-bottom:1.5rem}
+    .tab{flex:1;text-align:center;padding:7px;border-radius:8px;cursor:pointer;font-size:0.88rem;color:var(--muted);border:none;background:transparent;font-family:var(--font)}
+    .tab.active{background:var(--surf3);color:var(--text);font-weight:500}
+    .field{margin-bottom:1rem}
+    .field label{display:block;font-size:0.8rem;color:var(--muted);margin-bottom:5px}
+    .field input,.field textarea{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--font);font-size:0.9rem;outline:none}
+    .field input:focus,.field textarea:focus{border-color:var(--accent)}
+    .field textarea{resize:none}
+    .err{color:var(--red);font-size:0.8rem;margin-top:0.5rem;text-align:center}
+    .btn-big{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:var(--font);margin-top:0.5rem}
+    .btn-big:hover{background:#6b5ae0}
+
+    /* APP LAYOUT */
+    .app-screen{display:none}
+    .app-screen.visible{display:grid;grid-template-columns:220px 1fr 260px;min-height:100vh;max-width:1100px;margin:0 auto}
+
+    /* SIDEBAR */
+    .sidebar{padding:1.5rem 1rem;border-right:1px solid var(--border);position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+    .logo{font-size:1.3rem;font-weight:700;color:var(--accent2);margin-bottom:2rem}
+    .nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:10px;border:none;background:transparent;color:var(--muted);font-size:0.9rem;cursor:pointer;margin-bottom:4px;font-family:var(--font);text-align:left}
+    .nav-btn:hover,.nav-btn.active{background:var(--surf2);color:var(--accent2)}
+    .nav-icon{font-size:1.1rem}
+    .badge{background:var(--red);color:#fff;border-radius:50%;font-size:0.6rem;font-weight:700;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;margin-left:auto}
+    .sb-user{margin-top:auto;background:var(--surf2);border-radius:10px;padding:10px;display:flex;align-items:center;gap:8px;cursor:pointer}
+    .sb-user:hover{background:var(--surf3)}
+    .sb-uname{font-size:0.87rem;font-weight:500}
+    .sb-handle{font-size:0.75rem;color:var(--muted)}
+
+    /* MAIN */
+    .main{padding:1.5rem;border-right:1px solid var(--border)}
+    .page{display:none}.page.active{display:block}
+    .page-title{font-size:1.05rem;font-weight:600;padding-bottom:1rem;margin-bottom:1.2rem;border-bottom:1px solid var(--border)}
+
+    /* COMPOSE */
+    .compose{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:1rem;margin-bottom:1.2rem}
+    .compose textarea{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:0.95rem;resize:none;min-height:70px}
+    .compose textarea::placeholder{color:var(--muted)}
+    .compose-foot{display:flex;justify-content:space-between;align-items:center;margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border)}
+    .ccount{color:var(--muted);font-size:0.78rem}
+    .btn-post{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:var(--font)}
+    .btn-post:hover{background:#6b5ae0}
+
+    /* POST CARD */
+    .post{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:1.2rem;margin-bottom:1rem}
+    .post:hover{border-color:var(--surf3)}
+    .post-top{display:flex;gap:10px;margin-bottom:0.8rem;align-items:flex-start}
+    .post-meta{flex:1}
+    .post-name{font-weight:600;font-size:0.9rem}
+    .post-handle{color:var(--muted);font-size:0.76rem;margin-left:4px}
+    .post-time{color:var(--muted);font-size:0.73rem;margin-left:6px}
+    .post-text{font-size:0.93rem;line-height:1.65;color:#d4d0e8;margin-bottom:1.2rem}
+
+    /* ACTION BUTTONS — THIS IS THE KEY PART */
+    .post-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+    .like-btn{
+      display:flex;align-items:center;gap:6px;
+      background:#2a1a1a;
+      border:1.5px solid #3d2020;
+      color:#f87171;
+      border-radius:20px;
+      padding:6px 14px;
+      font-size:0.82rem;font-weight:600;
+      cursor:pointer;font-family:var(--font);
+      transition:all .2s;
+    }
+    .like-btn:hover{background:#3d1f1f;border-color:#f87171}
+    .like-btn.liked{background:#f87171;color:#fff;border-color:#f87171}
+    .like-btn .heart{font-size:1rem}
+
+    .comment-btn{
+      display:flex;align-items:center;gap:6px;
+      background:#1a1f2a;
+      border:1.5px solid #202d3d;
+      color:#a78bfa;
+      border-radius:20px;
+      padding:6px 14px;
+      font-size:0.82rem;font-weight:600;
+      cursor:pointer;font-family:var(--font);
+      transition:all .2s;
+    }
+    .comment-btn:hover{background:#202540;border-color:#a78bfa}
+    .comment-btn.open{background:#a78bfa;color:#fff;border-color:#a78bfa}
+    .comment-btn .bubble{font-size:1rem}
+
+    .delete-btn{
+      display:flex;align-items:center;gap:5px;
+      background:transparent;
+      border:1.5px solid var(--border);
+      color:var(--muted);
+      border-radius:20px;
+      padding:6px 12px;
+      font-size:0.8rem;
+      cursor:pointer;font-family:var(--font);
+      transition:all .2s;
+      margin-left:auto;
+    }
+    .delete-btn:hover{background:#2a1a1a;border-color:var(--red);color:var(--red)}
+
+    /* COMMENTS SECTION */
+    .cmt-box{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:none}
+    .cmt-box.open{display:block}
+    .one-cmt{display:flex;gap:8px;margin-bottom:0.7rem}
+    .cmt-bubble{background:var(--surf2);border-radius:10px;padding:8px 12px;flex:1}
+    .cmt-author{font-weight:600;font-size:0.8rem;margin-bottom:2px;color:var(--accent2)}
+    .cmt-text{font-size:0.83rem;color:#c0bcd4;line-height:1.5}
+    .cmt-input-row{display:flex;gap:8px;margin-top:0.8rem;align-items:center}
+    .cmt-input-row input{
+      flex:1;background:var(--surf2);border:1px solid var(--border);
+      border-radius:20px;padding:8px 14px;color:var(--text);
+      font-family:var(--font);font-size:0.85rem;outline:none;
+    }
+    .cmt-input-row input:focus{border-color:var(--accent)}
+    .cmt-submit{
+      background:var(--accent);color:#fff;border:none;
+      border-radius:20px;padding:8px 16px;font-size:0.82rem;
+      font-weight:600;cursor:pointer;font-family:var(--font);white-space:nowrap;
+    }
+    .cmt-submit:hover{background:#6b5ae0}
+
+    /* AVATAR CIRCLE */
+    .av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0}
+
+    /* RIGHT SIDEBAR */
+    .right{padding:1.5rem 1rem}
+    .mini-card{background:var(--surf);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1rem}
+    .mini-banner{height:75px;background:linear-gradient(135deg,#7c6af7,#312e6b)}
+    .mini-body{padding:0.9rem 1rem}
+    .mini-av-wrap{margin-top:-26px;margin-bottom:0.5rem}
+    .mini-uname{font-weight:700;font-size:0.9rem}
+    .mini-handle{color:var(--muted);font-size:0.76rem;margin-bottom:0.3rem}
+    .mini-bio{font-size:0.8rem;color:#c0bcd4;margin-bottom:0.7rem;line-height:1.5}
+    .mini-stats{display:flex;gap:1rem}
+    .mstat .num{font-weight:700;font-size:0.9rem}
+    .mstat .lbl{color:var(--muted);font-size:0.68rem}
+    .sec-label{font-size:0.73rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.8rem;margin-top:1rem}
+
+    /* SUGGESTION ROW */
+    .sug-row{display:flex;align-items:center;gap:9px;margin-bottom:0.85rem;background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+    .sug-info{flex:1}
+    .sug-name{font-size:0.84rem;font-weight:500}
+    .sug-handle{color:var(--muted);font-size:0.74rem}
+    .follow-btn{
+      background:var(--accent2);color:#1a1a22;border:none;
+      border-radius:20px;padding:5px 14px;font-size:0.78rem;
+      font-weight:700;cursor:pointer;font-family:var(--font);
+      white-space:nowrap;transition:all .2s;
+    }
+    .follow-btn.following{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+    .follow-btn:hover{opacity:0.85}
+
+    /* PROFILE PAGE */
+    .profile-card{background:var(--surf);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:1.5rem}
+    .p-banner{height:110px;background:linear-gradient(135deg,#7c6af7,#312e6b)}
+    .p-body{padding:1.2rem 1.4rem}
+    .p-top-row{display:flex;justify-content:space-between;align-items:flex-start}
+    .p-name{font-size:1.05rem;font-weight:700;margin-top:0.4rem}
+    .p-handle{color:var(--muted);font-size:0.8rem}
+    .p-bio{font-size:0.86rem;color:#c0bcd4;margin:0.5rem 0 0.8rem;line-height:1.5}
+    .p-stats{display:flex;gap:2rem}
+    .pstat .n{font-weight:700;font-size:1rem}
+    .pstat .l{color:var(--muted);font-size:0.74rem}
+    .btn-edit-profile{background:transparent;border:1.5px solid var(--border);color:var(--text);border-radius:20px;padding:6px 16px;font-size:0.82rem;cursor:pointer;font-family:var(--font)}
+    .btn-edit-profile:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* NOTIFICATIONS */
+    .notif{display:flex;gap:10px;align-items:flex-start;padding:0.85rem;border-radius:10px;margin-bottom:4px}
+    .notif.unread{background:var(--surf)}
+    .notif-icon{width:36px;height:36px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem}
+    .notif-text{font-size:0.85rem;line-height:1.5}
+    .notif-time{color:var(--muted);font-size:0.73rem;margin-top:2px}
+
+    /* MODAL */
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem}
+    .modal-box{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:1.5rem;width:100%;max-width:460px}
+    .modal-box h3{font-size:1rem;font-weight:600;margin-bottom:1rem}
+    .modal-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:1rem}
+    .btn-cancel{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 14px;font-size:0.82rem;cursor:pointer;font-family:var(--font)}
+
+    .empty{text-align:center;color:var(--muted);padding:3rem;font-size:0.88rem}
+    .loading{text-align:center;color:var(--muted);padding:2rem;font-size:0.85rem}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+
+<!-- ==================== AUTH SCREEN ==================== -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">★ SocialApp</div>
+    <div class="auth-sub">Connect. Share. Follow.</div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login',this)">Login</button>
+      <button class="tab" onclick="switchTab('register',this)">Register</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="login-form">
+      <div class="field"><label>Username</label><input type="text" id="l-user" placeholder="your username"/></div>
+      <div class="field"><label>Password</label><input type="password" id="l-pass" placeholder="your password"/></div>
+      <div class="err hidden" id="l-err"></div>
+      <button class="btn-big" onclick="doLogin()">Login</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="register-form" class="hidden">
+      <div class="field"><label>Full Name</label><input type="text" id="r-name" placeholder="e.g. Alex Kumar"/></div>
+      <div class="field"><label>Username</label><input type="text" id="r-user" placeholder="e.g. alexkumar (no spaces)"/></div>
+      <div class="field"><label>Bio (optional)</label><textarea id="r-bio" rows="2" placeholder="Tell us about yourself..."></textarea></div>
+      <div class="field"><label>Password</label><input type="password" id="r-pass" placeholder="choose a password"/></div>
+      <div class="err hidden" id="r-err"></div>
+      <button class="btn-big" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== MAIN APP ==================== -->
+<div class="app-screen" id="app-screen">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">★ SocialApp</div>
+    <button class="nav-btn active" onclick="goTo('home',this)"><span class="nav-icon">🏠</span> Home</button>
+    <button class="nav-btn" onclick="goTo('explore',this)"><span class="nav-icon">🔍</span> Explore</button>
+    <button class="nav-btn" onclick="goTo('notifications',this)">
+      <span class="nav-icon">🔔</span> Notifications
+      <span class="badge hidden" id="notif-badge">!</span>
+    </button>
+    <button class="nav-btn" onclick="goTo('profile',this)"><span class="nav-icon">👤</span> My Profile</button>
+    <button class="nav-btn" onclick="doLogout()"><span class="nav-icon">🚪</span> Logout</button>
+
+    <div class="sb-user" onclick="goTo('profile',null)">
+      <div class="av" id="sb-av" style="width:34px;height:34px;background:#7c6af7;font-size:0.8rem">?</div>
+      <div>
+        <div class="sb-uname" id="sb-name">Loading...</div>
+        <div class="sb-handle" id="sb-handle">@...</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="page-title">🏠 Home Feed</div>
+      <div class="compose">
+        <textarea id="compose-txt" placeholder="What's on your mind? Write something..." maxlength="280" oninput="updateCount()"></textarea>
+        <div class="compose-foot">
+          <span class="ccount" id="char-count">280 characters left</span>
+          <button class="btn-post" onclick="submitPost()">✉️ Post</button>
+        </div>
+      </div>
+      <div id="home-posts"><div class="loading">⏳ Loading posts...</div></div>
+    </div>
+
+    <!-- EXPLORE -->
+    <div class="page" id="page-explore">
+      <div class="page-title">🔍 Explore</div>
+      <div style="margin-bottom:1rem;padding:10px 14px;background:var(--surf);border-radius:10px;border:1px solid var(--border);font-size:0.83rem;color:var(--muted)">
+        Trending: &nbsp;
+        <span style="color:var(--accent2);font-weight:600">#webdev</span> &nbsp;
+        <span style="color:var(--accent2);font-weight:600">#javascript</span> &nbsp;
+        <span style="color:var(--accent2);font-weight:600">#coding</span> &nbsp;
+        <span style="color:var(--accent2);font-weight:600">#design</span>
+      </div>
+      <div id="explore-posts"><div class="loading">⏳ Loading...</div></div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="page" id="page-notifications">
+      <div class="page-title">🔔 Notifications</div>
+      <div id="notif-list"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="page-profile">
+      <div class="profile-card">
+        <div class="p-banner"></div>
+        <div class="p-body">
+          <div class="p-top-row">
+            <div class="av" id="p-av" style="width:66px;height:66px;font-size:1.4rem;background:#7c6af7;margin-top:-38px;border:4px solid var(--surf)">?</div>
+            <button class="btn-edit-profile" onclick="openEditModal()">✏️ Edit Profile</button>
+          </div>
+          <div class="p-name" id="p-name">...</div>
+          <div class="p-handle" id="p-handle">@...</div>
+          <div class="p-bio" id="p-bio">...</div>
+          <div class="p-stats">
+            <div class="pstat"><div class="n" id="ps-posts">0</div><div class="l">Posts</div></div>
+            <div class="pstat"><div class="n" id="ps-following">0</div><div class="l">Following</div></div>
+            <div class="pstat"><div class="n" id="ps-followers">0</div><div class="l">Followers</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="page-title" style="margin-bottom:1rem">📝 My Posts</div>
+      <div id="my-posts"><div class="loading">⏳ Loading...</div></div>
+    </div>
+
+  </main>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="right">
+    <div class="mini-card">
+      <div class="mini-banner"></div>
+      <div class="mini-body">
+        <div class="mini-av-wrap">
+          <div class="av" id="r-av" style="width:50px;height:50px;font-size:1rem;background:#7c6af7;border:3px solid var(--surf)">?</div>
+        </div>
+        <div class="mini-uname" id="r-name">...</div>
+        <div class="mini-handle" id="r-handle">@...</div>
+        <div class="mini-bio" id="r-bio">...</div>
+        <div class="mini-stats">
+          <div class="mstat"><div class="num" id="r-following">0</div><div class="lbl">Following</div></div>
+          <div class="mstat"><div class="num" id="r-followers">0</div><div class="lbl">Followers</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sec-label">👥 Suggested Users</div>
+    <div id="suggestions"></div>
+  </aside>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal-bg hidden" id="edit-modal">
+  <div class="modal-box">
+    <h3>✏️ Edit Profile</h3>
+    <div class="field"><label>Your Name</label><input type="text" id="e-name"/></div>
+    <div class="field"><label>Bio</label><textarea id="e-bio" rows="3" style="resize:none"></textarea></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-post" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const API = 'http://localhost:3000/api';
+let me = null;
+let notifications = [];
+let unreadCount = 0;
+
+// ── HELPERS ──────────────────────────────────────────────
+function initials(name){
+  return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+}
+function pickColor(str){
+  const cols=['#7c6af7','#059669','#dc2626','#d97706','#0891b2','#7c3aed','#be185d'];
+  let n=0; for(let i=0;i<str.length;i++) n+=str.charCodeAt(i);
+  return cols[n%cols.length];
+}
+function makeAv(name,size,fs){
+  const ini=initials(name);
+  return `<div class="av" style="width:${size}px;height:${size}px;font-size:${fs};background:${pickColor(ini)}">${ini}</div>`;
+}
+function timeAgo(d){
+  const s=Math.floor((Date.now()-new Date(d))/1000);
+  if(s<60) return 'just now';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+async function api(method,path,body){
+  const opts={method,headers:{'Content-Type':'application/json'}};
+  if(body) opts.body=JSON.stringify(body);
+  const res=await fetch(API+path,opts);
+  return res.json();
+}
+function showErr(el,msg){el.textContent=msg;el.classList.remove('hidden');}
+
+// ── AUTH ─────────────────────────────────────────────────
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('login-form').classList.toggle('hidden',tab!=='login');
+  document.getElementById('register-form').classList.toggle('hidden',tab!=='register');
+}
+async function doLogin(){
+  const username=document.getElementById('l-user').value.trim();
+  const password=document.getElementById('l-pass').value;
+  const errEl=document.getElementById('l-err');
+  if(!username||!password){showErr(errEl,'Please fill in all fields');return;}
+  const data=await api('POST','/login',{username,password});
+  if(data.success) startApp(data.user);
+  else showErr(errEl,data.message);
+}
+async function doRegister(){
+  const name=document.getElementById('r-name').value.trim();
+  const username=document.getElementById('r-user').value.trim().replace(/\s/g,'');
+  const bio=document.getElementById('r-bio').value.trim();
+  const password=document.getElementById('r-pass').value;
+  const errEl=document.getElementById('r-err');
+  if(!name||!username||!password){showErr(errEl,'Name, username and password are required');return;}
+  const data=await api('POST','/register',{name,username,bio,password});
+  if(data.success) startApp(data.user);
+  else showErr(errEl,data.message);
+}
+function doLogout(){
+  me=null;
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('app-screen').classList.remove('visible');
+}
+function startApp(user){
+  me=user;
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app-screen').classList.add('visible');
+  updateSidebarUser();
+  loadPosts('home-posts');
+  loadSuggestions();
+  loadProfileStats();
+  pushNotif('👋','Welcome to SocialApp! Start by writing a post or follow someone.');
+}
+
+// ── NAVIGATION ───────────────────────────────────────────
+function goTo(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(page==='home') loadPosts('home-posts');
+  if(page==='explore') loadPosts('explore-posts');
+  if(page==='profile') loadProfile();
+  if(page==='notifications'){
+    notifications.forEach(n=>n.unread=false);
+    unreadCount=0;
+    document.getElementById('notif-badge').classList.add('hidden');
+    renderNotifications();
+  }
+}
+
+// ── POSTS ────────────────────────────────────────────────
+async function loadPosts(containerId){
+  const el=document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML='<div class="loading">⏳ Loading posts...</div>';
+  const posts=await api('GET',`/posts?userId=${me.id}`);
+  if(!posts.length){el.innerHTML='<div class="empty">No posts yet. Be the first to post! 🚀</div>';return;}
+  el.innerHTML=posts.map(p=>buildPost(p)).join('');
+}
+
+function buildPost(p){
+  const likedClass = p.liked_by_me ? 'liked' : '';
+  const cmtBtnClass = '';
+
+  return `
+  <div class="post" id="post-${p.id}">
+
+    <!-- Author info -->
+    <div class="post-top">
+      ${makeAv(p.user_name,40,'0.88rem')}
+      <div class="post-meta">
+        <span class="post-name">${p.user_name}</span>
+        <span class="post-handle">@${p.user_username}</span>
+        <span class="post-time">· ${timeAgo(p.created_at)}</span>
+      </div>
+    </div>
+
+    <!-- Post content -->
+    <div class="post-text">${p.content}</div>
+
+    <!-- ACTION BUTTONS - clearly labeled -->
+    <div class="post-actions">
+
+      <!-- ❤️ LIKE BUTTON -->
+      <button
+        class="like-btn ${likedClass}"
+        id="like-btn-${p.id}"
+        onclick="toggleLike(${p.id})"
+        title="Like this post"
+      >
+        <span class="heart">❤️</span>
+        <span>Like</span>
+        <span id="like-count-${p.id}">${p.like_count}</span>
+      </button>
+
+      <!-- 💬 COMMENT BUTTON -->
+      <button
+        class="comment-btn"
+        id="cmt-btn-${p.id}"
+        onclick="toggleComments(${p.id})"
+        title="View and add comments"
+      >
+        <span class="bubble">💬</span>
+        <span>Comment</span>
+        <span id="cmt-count-${p.id}">${p.comment_count}</span>
+      </button>
+
+      <!-- 🗑️ DELETE BUTTON (only for your own posts) -->
+      ${p.user_id === me.id ? `
+      <button
+        class="delete-btn"
+        onclick="deletePost(${p.id})"
+        title="Delete this post"
+      >
+        🗑️ Delete
+      </button>` : ''}
+
+    </div>
+
+    <!-- COMMENTS SECTION (hidden until you click Comment button) -->
+    <div class="cmt-box" id="cmts-${p.id}">
+      <div id="cmts-list-${p.id}">
+        <div style="color:var(--muted);font-size:0.8rem;padding:4px 0">Click Comment to load comments...</div>
+      </div>
+      <div class="cmt-input-row">
+        ${makeAv(me.name,30,'0.65rem')}
+        <input
+          type="text"
+          id="cmt-inp-${p.id}"
+          placeholder="Write your comment here and press Enter..."
+          onkeydown="if(event.key==='Enter') submitComment(${p.id})"
+        />
+        <button class="cmt-submit" onclick="submitComment(${p.id})">
+          Send ➤
+        </button>
+      </div>
+    </div>
+
+  </div>`;
+}
+
+async function submitPost(){
+  const txt=document.getElementById('compose-txt').value.trim();
+  if(!txt){alert('Please write something before posting!');return;}
+  const data=await api('POST','/posts',{userId:me.id,content:txt});
+  if(data.success){
+    document.getElementById('compose-txt').value='';
+    document.getElementById('char-count').textContent='280 characters left';
+    loadPosts('home-posts');
+    pushNotif('📝','You published a new post!');
+  }
+}
+async function deletePost(postId){
+  if(!confirm('Are you sure you want to delete this post?')) return;
+  await api('DELETE',`/posts/${postId}`,{userId:me.id});
+  loadPosts('home-posts');
+  loadPosts('explore-posts');
+  loadProfile();
+  pushNotif('🗑️','Post deleted.');
+}
+function updateCount(){
+  const len=document.getElementById('compose-txt').value.length;
+  document.getElementById('char-count').textContent=(280-len)+' characters left';
+}
+
+// ── LIKES ────────────────────────────────────────────────
+async function toggleLike(postId){
+  const data=await api('POST','/likes',{postId,userId:me.id});
+  const btn=document.getElementById('like-btn-'+postId);
+  const countEl=document.getElementById('like-count-'+postId);
+  const current=parseInt(countEl.textContent)||0;
+  if(data.action==='liked'){
+    btn.classList.add('liked');
+    countEl.textContent=current+1;
+    pushNotif('❤️','You liked a post!');
+  } else {
+    btn.classList.remove('liked');
+    countEl.textContent=Math.max(0,current-1);
+  }
+}
+
+// ── COMMENTS ─────────────────────────────────────────────
+async function toggleComments(postId){
+  const box=document.getElementById('cmts-'+postId);
+  const btn=document.getElementById('cmt-btn-'+postId);
+  if(box.classList.contains('open')){
+    box.classList.remove('open');
+    btn.classList.remove('open');
+  } else {
+    box.classList.add('open');
+    btn.classList.add('open');
+    await loadComments(postId);
+  }
+}
+async function loadComments(postId){
+  const listEl=document.getElementById('cmts-list-'+postId);
+  listEl.innerHTML='<div style="color:var(--muted);font-size:0.8rem;padding:4px 0">⏳ Loading comments...</div>';
+  const comments=await api('GET',`/comments/${postId}`);
+  if(!comments.length){
+    listEl.innerHTML='<div style="color:var(--muted);font-size:0.8rem;padding:4px 0">No comments yet. Be the first to comment! 💬</div>';
+    return;
+  }
+  listEl.innerHTML=comments.map(c=>`
+    <div class="one-cmt">
+      ${makeAv(c.user_name,30,'0.65rem')}
+      <div class="cmt-bubble">
+        <div class="cmt-author">${c.user_name} <span style="color:var(--muted);font-size:0.72rem;font-weight:400">@${c.user_username} · ${timeAgo(c.created_at)}</span></div>
+        <div class="cmt-text">${c.content}</div>
+      </div>
+    </div>`).join('');
+}
+async function submitComment(postId){
+  const inp=document.getElementById('cmt-inp-'+postId);
+  const content=inp.value.trim();
+  if(!content){alert('Please write a comment first!');return;}
+  await api('POST','/comments',{postId,userId:me.id,content});
+  inp.value='';
+  await loadComments(postId);
+  const countEl=document.getElementById('cmt-count-'+postId);
+  countEl.textContent=parseInt(countEl.textContent||0)+1;
+  pushNotif('💬','You added a comment!');
+}
+
+// ── FOLLOW ───────────────────────────────────────────────
+async function toggleFollow(targetId,btn){
+  const data=await api('POST','/follow',{followerId:me.id,followingId:targetId});
+  if(data.action==='followed'){
+    btn.textContent='✓ Following';
+    btn.classList.add('following');
+    pushNotif('👥','You followed a user!');
+  } else {
+    btn.textContent='+ Follow';
+    btn.classList.remove('following');
+  }
+  loadProfileStats();
+}
+
+// ── SUGGESTIONS ──────────────────────────────────────────
+async function loadSuggestions(){
+  const users=await api('GET',`/users?myId=${me.id}`);
+  const el=document.getElementById('suggestions');
+  if(!el) return;
+  if(!users.length){el.innerHTML='<div style="color:var(--muted);font-size:0.82rem">No suggestions yet.</div>';return;}
+  el.innerHTML=users.slice(0,5).map(u=>`
+    <div class="sug-row">
+      ${makeAv(u.name,34,'0.78rem')}
+      <div class="sug-info">
+        <div class="sug-name">${u.name}</div>
+        <div class="sug-handle">@${u.username}</div>
+      </div>
+      <button
+        class="follow-btn ${u.i_follow?'following':''}"
+        id="follow-btn-${u.id}"
+        onclick="toggleFollow(${u.id},this)"
+      >
+        ${u.i_follow?'✓ Following':'+ Follow'}
+      </button>
+    </div>`).join('');
+}
+
+// ── PROFILE ──────────────────────────────────────────────
+async function loadProfile(){
+  const posts=await api('GET',`/posts/user/${me.id}?userId=${me.id}`);
+  const el=document.getElementById('my-posts');
+  el.innerHTML=posts.length
+    ?posts.map(p=>buildPost(p)).join('')
+    :'<div class="empty">You have not posted anything yet! Go to Home and write your first post 🚀</div>';
+  loadProfileStats();
+}
+async function loadProfileStats(){
+  const stats=await api('GET',`/users/${me.id}/stats`);
+  document.getElementById('ps-posts').textContent=stats.posts;
+  document.getElementById('ps-following').textContent=stats.following;
+  document.getElementById('ps-followers').textContent=stats.followers;
+  document.getElementById('r-following').textContent=stats.following;
+  document.getElementById('r-followers').textContent=stats.followers;
+}
+function updateSidebarUser(){
+  if(!me) return;
+  const ini=initials(me.name);
+  document.getElementById('sb-av').textContent=ini;
+  document.getElementById('sb-name').textContent=me.name;
+  document.getElementById('sb-handle').textContent='@'+me.username;
+  document.getElementById('r-av').textContent=ini;
+  document.getElementById('r-name').textContent=me.name;
+  document.getElementById('r-handle').textContent='@'+me.username;
+  document.getElementById('r-bio').textContent=me.bio||'No bio yet.';
+  document.getElementById('p-av').textContent=ini;
+  document.getElementById('p-name').textContent=me.name;
+  document.getElementById('p-handle').textContent='@'+me.username;
+  document.getElementById('p-bio').textContent=me.bio||'No bio yet.';
+}
+
+// ── EDIT PROFILE ─────────────────────────────────────────
+function openEditModal(){
+  document.getElementById('e-name').value=me.name;
+  document.getElementById('e-bio').value=me.bio||'';
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+function closeEditModal(){document.getElementById('edit-modal').classList.add('hidden');}
+async function saveProfile(){
+  const name=document.getElementById('e-name').value.trim();
+  const bio=document.getElementById('e-bio').value.trim();
+  if(!name){alert('Name cannot be empty!');return;}
+  await api('PUT',`/users/${me.id}`,{name,bio});
+  me.name=name; me.bio=bio;
+  closeEditModal();
+  updateSidebarUser();
+  loadProfileStats();
+  pushNotif('✏️','Profile updated successfully!');
+}
+
+// ── NOTIFICATIONS ────────────────────────────────────────
+function pushNotif(icon,text){
+  notifications.unshift({icon,text,time:'just now',unread:true});
+  unreadCount++;
+  document.getElementById('notif-badge').classList.remove('hidden');
+  renderNotifications();
+}
+function renderNotifications(){
+  const el=document.getElementById('notif-list');
+  if(!el) return;
+  if(!notifications.length){
+    el.innerHTML='<div class="empty">No notifications yet.</div>';
+    return;
+  }
+  el.innerHTML=notifications.map(n=>`
+    <div class="notif ${n.unread?'unread':''}">
+      <div class="notif-icon">${n.icon}</div>
+      <div>
+        <div class="notif-text">${n.text}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>
