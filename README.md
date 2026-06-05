@@ -80,9 +80,9 @@ POST /api/like-post → Like a post
 
 
 
-Pugazhharasi K
+Pugazharasi K
 
-GitHub: https://github.com/Pugazh2123
+
 
 
 
