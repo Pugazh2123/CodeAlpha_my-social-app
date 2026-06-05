@@ -50,11 +50,9 @@ frontend/ - UI files (if available)
 
 1\. Clone the repository
 
-git clone https://Pugazh2123@github.com/Pugazh2123/CodeAlpha\_my-social-app.git
+git clone https://github.com/Pugazh2123/CodeAlpha\_my-social-app.git
 
-2\. Move into project folder
-
-cd CodeAlpha\_my-social-app
+CodeAlpha\_my-social-app
 
 3\. Install dependencies
 
@@ -66,7 +64,7 @@ node server.js
 
 5\. Open in browser
 
-http://127.0.0.1:3000
+Run locally: http://127.0.0.1:3000
 
 📡 API Endpoints
 
